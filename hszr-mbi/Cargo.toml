@@ -1,0 +1,19 @@
+[package]
+name = "hszr-mbi"
+version = "1.0.0"
+edition = "2021"
+description = "HOSHIZORA Modbus Injector — OT Network Attack Simulator (Educational)"
+authors  = ["Hoshizora Security Research Lab"]
+
+[[bin]]
+name = "hszr-mbi"
+path = "src/main.rs"
+
+[dependencies]
+serde      = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[profile.release]
+opt-level = "z"
+lto       = true
+strip     = true

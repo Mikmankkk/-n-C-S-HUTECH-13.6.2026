@@ -1,0 +1,380 @@
+/* ============================================================
+   HOSHIZORA SCADA Monitor — Dashboard Stylesheet
+   Dark industrial HUD theme   |   Glassmorphism panels
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ─── Design tokens ─────────────────────────────────────────────────────── */
+:root {
+  --bg-base:      #070d1a;
+  --bg-panel:     rgba(10, 22, 45, 0.75);
+  --bg-panel-alt: rgba(5, 14, 32, 0.85);
+  --border:       rgba(0, 200, 170, 0.15);
+  --border-glow:  rgba(0, 200, 170, 0.45);
+
+  --accent:       #00c8aa;
+  --accent-dim:   #007f6e;
+  --accent-glow:  rgba(0, 200, 170, 0.25);
+
+  --danger:       #ff3f3f;
+  --danger-dim:   rgba(255, 63, 63, 0.15);
+  --danger-glow:  rgba(255, 63, 63, 0.35);
+
+  --warn:         #ffb830;
+  --warn-dim:     rgba(255, 184, 48, 0.15);
+
+  --ok:           #00e676;
+  --ok-dim:       rgba(0, 230, 118, 0.15);
+
+  --text-primary:   #e8f4f2;
+  --text-secondary: #7ea8a0;
+  --text-dim:       #3d5a55;
+  --text-mono:      'JetBrains Mono', monospace;
+
+  --radius:       10px;
+  --radius-sm:    6px;
+  --shadow:       0 8px 32px rgba(0,0,0,0.6);
+  --transition:   all 0.25s ease;
+}
+
+/* ─── Reset ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow-x: hidden; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(0,200,170,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 90%, rgba(0,100,255,0.05) 0%, transparent 50%);
+  min-height: 100vh;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 99px; }
+
+/* ─── Layout ─────────────────────────────────────────────────────────────── */
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 28px;
+  background: rgba(5,14,32,0.95);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.header-logo { display: flex; align-items: center; gap: 12px; }
+.header-logo .logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), #005f52);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.header-logo h1 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+}
+.header-logo .sub { font-size: 11px; color: var(--text-secondary); font-family: var(--text-mono); }
+
+.header-status { display: flex; align-items: center; gap: 20px; }
+.status-badge {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 14px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-family: var(--text-mono);
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--bg-panel-alt);
+  transition: var(--transition);
+}
+.status-badge .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--text-dim);
+  animation: pulse-dim 2s infinite;
+}
+.status-badge.connected .dot { background: var(--ok); animation: pulse-ok 2s infinite; }
+.status-badge.error .dot     { background: var(--danger); animation: pulse-danger 1s infinite; }
+#clock { font-family: var(--text-mono); font-size: 13px; color: var(--text-secondary); }
+
+/* ─── Main Grid ──────────────────────────────────────────────────────────── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  grid-template-rows: auto auto 1fr;
+  gap: 18px;
+  padding: 20px 24px;
+  flex: 1;
+}
+
+/* ─── Panel base ─────────────────────────────────────────────────────────── */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.panel:hover { border-color: var(--border-glow); }
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,200,170,0.04);
+}
+.panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.panel-badge {
+  font-size: 10px;
+  font-family: var(--text-mono);
+  color: var(--text-secondary);
+  background: rgba(0,200,170,0.08);
+  padding: 2px 9px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+}
+.panel-body { padding: 16px 18px; }
+
+/* ─── Register Cards Grid ────────────────────────────────────────────────── */
+.register-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+.reg-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 16px 14px;
+  backdrop-filter: blur(14px);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.reg-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent-dim);
+  transition: background 0.3s;
+}
+.reg-card.active::before  { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+.reg-card.danger::before  { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+.reg-card.alarm::before   { background: var(--warn); box-shadow: 0 0 8px var(--warn); animation: alarm-flash 0.8s infinite; }
+
+.reg-name {
+  font-size: 10px;
+  font-family: var(--text-mono);
+  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.reg-value {
+  font-size: 26px;
+  font-weight: 700;
+  font-family: var(--text-mono);
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 8px;
+  transition: color 0.3s;
+}
+.reg-card.active .reg-value { color: var(--ok); }
+.reg-card.danger .reg-value { color: var(--danger); }
+
+.reg-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.reg-icon { position: absolute; top: 14px; right: 14px; font-size: 20px; opacity: 0.35; }
+
+/* ─── Network Topology ───────────────────────────────────────────────────── */
+#topology-panel { grid-column: 1; }
+.topology-svg-wrap { display: flex; justify-content: center; align-items: center; padding: 10px 0; }
+
+/* ─── Log + Alert Panels ─────────────────────────────────────────────────── */
+#log-panel   { grid-column: 2; grid-row: 2 / 4; }
+#alert-panel { grid-column: 1; }
+
+.log-feed {
+  height: 220px;
+  overflow-y: auto;
+  font-family: var(--text-mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+.log-line { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.log-line .ts { color: var(--accent-dim); margin-right: 8px; }
+.log-line.err { color: var(--danger); }
+.log-line.warn { color: var(--warn); }
+
+.alert-feed { height: 260px; overflow-y: auto; }
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  background: var(--danger-dim);
+  border: 1px solid rgba(255,63,63,0.25);
+  animation: slide-in 0.35s ease;
+}
+.alert-item .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+.alert-item .alert-body { flex: 1; min-width: 0; }
+.alert-sig {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--danger);
+  margin-bottom: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.alert-meta {
+  font-family: var(--text-mono);
+  font-size: 10.5px;
+  color: var(--text-secondary);
+}
+.no-alerts {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-dim);
+  font-family: var(--text-mono);
+  font-size: 12px;
+}
+
+/* ─── Attack Controls ────────────────────────────────────────────────────── */
+#controls-panel { grid-column: 1; }
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.atk-btn {
+  padding: 10px 8px;
+  border: 1px solid rgba(255, 63, 63, 0.3);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 63, 63, 0.07);
+  color: var(--text-primary);
+  font-family: var(--text-mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+  line-height: 1.4;
+}
+.atk-btn:hover {
+  background: rgba(255, 63, 63, 0.18);
+  border-color: var(--danger);
+  box-shadow: 0 0 12px var(--danger-glow);
+  transform: translateY(-1px);
+}
+.atk-btn:active { transform: translateY(0); }
+.atk-btn .fc-tag {
+  display: inline-block;
+  background: rgba(255,63,63,0.2);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 9px;
+  margin-bottom: 4px;
+  color: var(--danger);
+}
+
+.scada-controls { display: flex; gap: 10px; margin-top: 12px; }
+.scada-btn {
+  flex: 1;
+  padding: 9px;
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius-sm);
+  background: var(--accent-glow);
+  color: var(--accent);
+  font-family: var(--text-mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.scada-btn:hover {
+  background: rgba(0,200,170,0.2);
+  box-shadow: 0 0 12px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+/* ─── Topology SVG styles ─────────────────────────────────────────────────── */
+.topo-node rect { rx: 6; }
+.topo-label { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; fill: #e8f4f2; }
+.topo-sub   { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: #7ea8a0; }
+.topo-line  { stroke-width: 2; stroke-dasharray: 6 4; }
+.topo-arrow { fill: none; }
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+@keyframes pulse-ok {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,230,118,0.5); }
+  50%       { box-shadow: 0 0 0 5px rgba(0,230,118,0); }
+}
+@keyframes pulse-dim {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.5; }
+}
+@keyframes pulse-danger {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,63,63,0.6); }
+  50%       { box-shadow: 0 0 0 5px rgba(255,63,63,0); }
+}
+@keyframes alarm-flash {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.2; }
+}
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes scan-line {
+  0%   { top: 0; opacity: 0.6; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Scan-line effect on connected badge */
+.status-badge.connected::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: var(--accent);
+  top: 0;
+  animation: scan-line 3s linear infinite;
+  pointer-events: none;
+}
+.status-badge { position: relative; overflow: hidden; }
+
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .register-grid { grid-template-columns: repeat(3, 1fr); }
+  .main-grid     { grid-template-columns: 1fr; }
+  #log-panel     { grid-row: auto; }
+}
+@media (max-width: 680px) {
+  .register-grid { grid-template-columns: 1fr 1fr; }
+  .controls-grid { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 14px; }
+}

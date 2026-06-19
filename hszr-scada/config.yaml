@@ -1,0 +1,17 @@
+# ============================================================
+# HOSHIZORA SCADA Control Center — Configuration
+# ============================================================
+
+scada:
+  host: "192.168.10.10"       # This machine's IP (for reference)
+  poll_interval: 2             # Register poll cycle in seconds
+  iot_address: "192.168.10.20" # HSZR-IOT (ESP32) address
+  iot_port: 502                # Modbus TCP port
+  unit_id: 1                   # Modbus slave unit ID
+
+api:
+  host: "0.0.0.0"             # Bind to all interfaces
+  port: 8000                   # FastAPI / dashboard port
+
+suricata:
+  eve_log: "/var/log/suricata/eve.json"  # Suricata EVE JSON output

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HOSHIZORA SCADA Monitor</title>
+  <meta name="description" content="Real-time ICS/SCADA monitoring dashboard for the Hoshizora security research lab. Displays Modbus register states, Suricata IDS alerts, and attack simulation controls." />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡</text></svg>" />
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══════════════════════════════════════ HEADER -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="logo-icon">🛡</div>
+      <div>
+        <h1>HOSHIZORA SCADA MONITOR</h1>
+        <div class="sub">ICS Security Research Platform  ·  v1.0.0</div>
+      </div>
+    </div>
+    <div class="header-status">
+      <div id="ws-status" class="status-badge">
+        <span id="ws-dot" class="dot"></span>
+        <span id="ws-label">CONNECTING</span>
+      </div>
+      <span id="clock" style="font-family:monospace;font-size:13px;color:#7ea8a0"></span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════ MAIN GRID -->
+  <main class="main-grid">
+
+    <!-- ── Row 1: Register Cards ─────────────────────────────── -->
+    <div class="register-grid">
+
+      <!-- PUMP_CONTROL -->
+      <div class="reg-card" id="reg-PUMP_CONTROL">
+        <span class="reg-icon">⚙</span>
+        <div class="reg-name">PUMP CONTROL</div>
+        <div class="reg-value" id="val-PUMP_CONTROL">—</div>
+        <div class="reg-label">Addr: 0x0001  ·  FC06</div>
+      </div>
+
+      <!-- VALVE_STATUS -->
+      <div class="reg-card" id="reg-VALVE_STATUS">
+        <span class="reg-icon">🔧</span>
+        <div class="reg-name">VALVE STATUS</div>
+        <div class="reg-value" id="val-VALVE_STATUS">—</div>
+        <div class="reg-label">Addr: 0x0002  ·  FC06</div>
+      </div>
+
+      <!-- ALARM_OVERRIDE -->
+      <div class="reg-card" id="reg-ALARM_OVERRIDE">
+        <span class="reg-icon">🔔</span>
+        <div class="reg-name">ALARM OVERRIDE</div>
+        <div class="reg-value" id="val-ALARM_OVERRIDE">—</div>
+        <div class="reg-label">Addr: 0x0003  ·  FC06</div>
+      </div>
+
+      <!-- TEMPERATURE -->
+      <div class="reg-card" id="reg-TEMPERATURE">
+        <span class="reg-icon">🌡</span>
+        <div class="reg-name">TEMPERATURE</div>
+        <div class="reg-value" id="val-TEMPERATURE">—</div>
+        <div class="reg-label">Addr: 0x0004  ·  raw ÷ 10</div>
+      </div>
+
+      <!-- PRESSURE -->
+      <div class="reg-card" id="reg-PRESSURE">
+        <span class="reg-icon">📊</span>
+        <div class="reg-name">PRESSURE</div>
+        <div class="reg-value" id="val-PRESSURE">—</div>
+        <div class="reg-label">Addr: 0x0005  ·  raw ÷ 10</div>
+      </div>
+
+    </div><!-- /register-grid -->
+
+    <!-- ── Row 2 Left: Network Topology ─────────────────────── -->
+    <div class="panel" id="topology-panel">
+      <div class="panel-header">
+        <span class="panel-title">Network Topology</span>
+        <span class="panel-badge">192.168.10.0/24</span>
+      </div>
+      <div class="panel-body topology-svg-wrap">
+        <svg viewBox="0 0 580 200" width="100%" style="max-width:600px">
+          <!-- SCADA node -->
+          <rect x="10" y="70" width="130" height="60" rx="8"
+                fill="rgba(0,200,170,0.12)" stroke="#00c8aa" stroke-width="1.5"/>
+          <text x="75" y="97" class="topo-label" text-anchor="middle">HSZR-SCADA</text>
+          <text x="75" y="112" class="topo-sub" text-anchor="middle">192.168.10.10</text>
+          <text x="75" y="124" class="topo-sub" text-anchor="middle">Modbus Master</text>
+
+          <!-- Suricata node -->
+          <rect x="220" y="70" width="140" height="60" rx="8"
+                fill="rgba(255,184,48,0.1)" stroke="#ffb830" stroke-width="1.5"/>
+          <text x="290" y="97" class="topo-label" text-anchor="middle">SURICATA</text>
+          <text x="290" y="112" class="topo-sub" text-anchor="middle">IDS / IPS Gateway</text>
+          <text x="290" y="124" class="topo-sub" text-anchor="middle">Bridge  br0</text>
+
+          <!-- IOT node -->
+          <rect x="440" y="70" width="130" height="60" rx="8"
+                fill="rgba(0,100,255,0.1)" stroke="#4488ff" stroke-width="1.5"/>
+          <text x="505" y="97" class="topo-label" text-anchor="middle">HSZR-IOT</text>
+          <text x="505" y="112" class="topo-sub" text-anchor="middle">192.168.10.20</text>
+          <text x="505" y="124" class="topo-sub" text-anchor="middle">ESP32-S3 Slave</text>
+
+          <!-- SCADA → Suricata (legit) -->
+          <line x1="140" y1="100" x2="220" y2="100"
+                stroke="#00c8aa" stroke-width="2" stroke-dasharray="6 3"/>
+          <polygon points="218,96 228,100 218,104" fill="#00c8aa"/>
+
+          <!-- Suricata → IoT (legit passthrough) -->
+          <line x1="360" y1="100" x2="440" y2="100"
+                stroke="#00c8aa" stroke-width="2" stroke-dasharray="6 3"/>
+          <polygon points="438,96 448,100 438,104" fill="#00c8aa"/>
+
+          <!-- MBI node (attacker) -->
+          <rect x="220" y="4" width="140" height="48" rx="8"
+                fill="rgba(255,63,63,0.12)" stroke="#ff3f3f" stroke-width="1.5"/>
+          <text x="290" y="26" class="topo-label" text-anchor="middle" fill="#ff8080">HSZR-MBI</text>
+          <text x="290" y="40" class="topo-sub" text-anchor="middle">192.168.10.66</text>
+          <text x="290" y="52" class="topo-sub" text-anchor="middle">Rogue Injector</text>
+
+          <!-- MBI → Suricata (attack arrow) -->
+          <line x1="290" y1="52" x2="290" y2="70"
+                stroke="#ff3f3f" stroke-width="2" stroke-dasharray="4 3"/>
+          <polygon points="286,68 290,78 294,68" fill="#ff3f3f"/>
+
+          <!-- Labels -->
+          <text x="168" y="92" fill="#7ea8a0" font-size="9" text-anchor="middle">Authorized</text>
+          <text x="168" y="103" fill="#7ea8a0" font-size="9" text-anchor="middle">Poll/Write</text>
+          <text x="398" y="92" fill="#7ea8a0" font-size="9" text-anchor="middle">Inspect &amp;</text>
+          <text x="398" y="103" fill="#7ea8a0" font-size="9" text-anchor="middle">Forward</text>
+          <text x="318" y="60" fill="#ff6060" font-size="9">FC06/16 Inject</text>
+
+          <!-- Legend -->
+          <line x1="10" y1="180" x2="35" y2="180" stroke="#00c8aa" stroke-width="2" stroke-dasharray="6 3"/>
+          <text x="40" y="184" fill="#7ea8a0" font-size="9">Legitimate traffic</text>
+          <line x1="130" y1="180" x2="155" y2="180" stroke="#ff3f3f" stroke-width="2" stroke-dasharray="4 3"/>
+          <text x="160" y="184" fill="#7ea8a0" font-size="9">Injection attack</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ── Row 2 Right: SCADA Log (spans rows 2-3) ────────────── -->
+    <div class="panel" id="log-panel">
+      <div class="panel-header">
+        <span class="panel-title">SCADA Poll Log</span>
+        <span class="panel-badge" id="log-badge">LIVE</span>
+      </div>
+      <div class="panel-body" style="padding:12px">
+        <div class="log-feed" id="log-feed">
+          <div class="log-line"><span class="ts">--:--:--</span>Waiting for SCADA connection…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Row 3 Left: Suricata Alerts ──────────────────────── -->
+    <div class="panel" id="alert-panel">
+      <div class="panel-header">
+        <span class="panel-title">⚠ Suricata IDS Alerts
+          <span id="alert-count"
+                style="background:rgba(255,63,63,0.2);color:#ff3f3f;padding:1px 8px;border-radius:99px;font-size:11px;margin-left:8px">
+            0
+          </span>
+        </span>
+        <span class="panel-badge" id="alert-panel-badge">0 TOTAL</span>
+      </div>
+      <div class="panel-body" style="padding:12px">
+        <div class="alert-feed" id="alert-feed">
+          <div class="no-alerts">🛡 No alerts yet — network is clean</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Row 4 Left: Attack Controls ──────────────────────── -->
+    <div class="panel" id="controls-panel" style="grid-column:1 / -1">
+      <div class="panel-header">
+        <span class="panel-title">🔴 Attack Simulation Controls (HSZR-MBI)</span>
+        <span class="panel-badge">SCADA AUTHORIZED WRITES</span>
+      </div>
+      <div class="panel-body">
+        <p style="font-size:11px;color:#7ea8a0;margin-bottom:14px">
+          These buttons issue commands through the <strong>SCADA API</strong> (authorized writes).
+          To simulate <em>unauthorized injection</em>, run
+          <code style="background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:4px">hszr-mbi inject</code>
+          from the attacker node.
+        </p>
+        <div class="controls-grid">
+          <button class="atk-btn" id="btn-pump-on"
+                  data-label="Pump Override ON" data-reg="1" data-val="1">
+            <div class="fc-tag">FC06</div><br>⚙ Pump ON
+          </button>
+          <button class="atk-btn" id="btn-pump-off"
+                  data-label="Pump Override OFF" data-reg="1" data-val="0">
+            <div class="fc-tag">FC06</div><br>⚙ Pump OFF
+          </button>
+          <button class="atk-btn" id="btn-valve-open"
+                  data-label="Valve Force Open" data-reg="2" data-val="1">
+            <div class="fc-tag">FC06</div><br>🔧 Valve OPEN
+          </button>
+          <button class="atk-btn" id="btn-valve-close"
+                  data-label="Valve Force Close" data-reg="2" data-val="0">
+            <div class="fc-tag">FC06</div><br>🔧 Valve CLOSE
+          </button>
+          <button class="atk-btn" id="btn-alarm-set"
+                  data-label="Trigger Alarm" data-reg="3" data-val="1">
+            <div class="fc-tag">FC06</div><br>🔔 Alarm SET
+          </button>
+          <button class="atk-btn" id="btn-alarm-clear"
+                  data-label="Alarm Suppress" data-reg="3" data-val="0">
+            <div class="fc-tag">FC06</div><br>🔕 Alarm CLEAR
+          </button>
+        </div>
+        <div class="scada-controls">
+          <button class="scada-btn" id="btn-scada-reset" onclick="fireAttack('SCADA Reset All',1,0);fireAttack('SCADA Reset All',2,0);fireAttack('SCADA Reset All',3,0);">
+            🔄 Reset All Registers
+          </button>
+          <button class="scada-btn" id="btn-refresh-alerts" onclick="refreshAlerts()">
+            🔃 Refresh Alerts
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main><!-- /main-grid -->
+</div><!-- /app -->
+
+<script src="js/app.js"></script>
+<script>
+  // Extra button wiring not handled by data-attributes
+  async function refreshAlerts() {
+    try {
+      const res  = await fetch(`${API_BASE}/alerts?limit=50`);
+      const data = await res.json();
+      (data.alerts || []).forEach(addAlert);
+    } catch(e) { appendLog('[ERROR] Refresh failed: ' + e.message, 'err'); }
+  }
+</script>
+</body>
+</html>

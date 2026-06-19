@@ -1,0 +1,17 @@
+[Unit]
+Description=HOSHIZORA SCADA Control Center (HSZR-SCADA)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/hoshizora/hszr-scada/src
+ExecStart=/usr/bin/python3 main.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+Environment=HSZR_CONFIG=/opt/hoshizora/hszr-scada/config.yaml
+
+[Install]
+WantedBy=multi-user.target
